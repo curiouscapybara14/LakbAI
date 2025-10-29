@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LAKBAI - Navigation App</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -16,6 +16,13 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: #e5e5e5;
             overflow: hidden;
+            margin: 0;
+            padding: 0;
+            -webkit-touch-callout: none; /* Disable iOS callout */
+            -webkit-user-select: none;   /* Disable text selection */
+            -moz-user-select: none;      /* Firefox */
+            -ms-user-select: none;       /* Internet Explorer/Edge */
+            user-select: none;           /* Standard syntax */
         }
 
         .phone-frame {
@@ -76,6 +83,7 @@
 
         .main-content {
             padding: 20px;
+            padding-top: 60px; /* Space for the menu button */
             overflow-y: auto;
             height: calc(812px - 44px - 64px);
         }

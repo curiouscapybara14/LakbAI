@@ -6,10 +6,9 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Main content
-                VStack {
-                    Text("Main Content")
-                }
+                // Main content with WebView
+                WebView(htmlFile: "index")
+                    .edgesIgnoringSafeArea(.all)
                 
                 // Sidebar overlay
                 if isSidebarVisible {
