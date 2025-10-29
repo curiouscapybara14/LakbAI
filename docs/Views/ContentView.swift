@@ -6,11 +6,9 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Main content with WebView
-                WebView(htmlFile: "index")
+                WebView(htmlFile: "index", isSidebarVisible: $isSidebarVisible)
                     .edgesIgnoringSafeArea(.all)
                 
-                // Sidebar overlay
                 if isSidebarVisible {
                     Color.black.opacity(0.4)
                         .ignoresSafeArea()
@@ -22,7 +20,6 @@ struct ContentView: View {
                         .animation(.default, value: isSidebarVisible)
                 }
                 
-                // Menu button
                 VStack {
                     HStack {
                         Button(action: {
