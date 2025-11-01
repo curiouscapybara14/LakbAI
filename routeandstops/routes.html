@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAKBAI - Routes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 414px;
+            height: 736px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c2b 100%);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 80px;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-3px);
+        }
+
+        .logo-container {
+            /* move slightly to the right while keeping centered relative to header */
+            position: absolute;
+            left: 52%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            pointer-events: none; /* allow back button clicks through if needed */
+        }
+
+        .logo {
+            max-height: 40px;
+            max-width: 160px;
+            object-fit: contain;
+            /* force logo to appear white; works best for dark/colored logos */
+            filter: brightness(0) invert(1) saturate(0);
+            /* keep it sharp on high-DPI screens */
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            background: #f8f8f8;
+            padding: 20px;
+        }
+
+        /* Search Container */
+        .search-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .location-input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .location-input:focus {
+            outline: none;
+            border-color: #4a7c2b;
+        }
+
+        .go-btn {
+            width: 100%;
+            padding: 14px;
+            background: #ccc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: not-allowed;
+            transition: transform 0.2s, box-shadow 0.2s;
+            opacity: 0.6;
+        }
+
+        .go-btn:not(:disabled) {
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c2b 100%);
+            cursor: pointer;
+            opacity: 1;
+        }
+
+        .go-btn:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(45, 80, 22, 0.3);
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        /* Routes List */
+        .routes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .route-card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .route-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .route-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .route-icon {
+            flex-shrink: 0;
+            width: 50px;
+            height: 50px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .route-title {
+            flex: 1;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .route-time {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #999;
+            font-size: 13px;
+        }
+
+        .route-path {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 0 10px;
+        }
+
+        .stop {
+            width: 12px;
+            height: 12px;
+            background: #4a7c2b;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .path-line {
+            flex: 1;
+            height: 3px;
+            background: linear-gradient(to right, #4a7c2b, #4a7c2b);
+            margin: 0 5px;
+        }
+
+        .route-stops {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .route-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .route-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2d5016;
+        }
+
+        .view-details-btn {
+            padding: 8px 16px;
+            background: none;
+            color: #4a7c2b;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .view-details-btn:hover {
+            background: #f0f7ed;
+        }
+
+        /* Scrollbar Styling */
+        .main-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .main-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .main-content::-webkit-scrollbar-thumb {
+            background: #4a7c2b;
+            border-radius: 3px;
+        }
+
+        /* Notification */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 414px) {
+            body {
+                padding: 0;
+            }
+            
+            .app-container {
+                border-radius: 0;
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <button class="back-btn" id="backBtn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            <div class="logo-container">
+                <!-- Replace text with your logo: <img src="lakbai-logo.png" alt="LAKBAI" class="logo"> -->
+                <img src="lakbai ai logo.png" alt="LAKBAI" class="logo">
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Routes Page -->
+            <div class="search-container">
+                <div class="input-group">
+                    <div class="input-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                            <circle cx="12" cy="9" r="2.5"/>
+                        </svg>
+                    </div>
+                    <input type="text" id="fromInput" placeholder="Enter starting point..." class="location-input">
+                </div>
+                <div class="input-group">
+                    <div class="input-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666">
+                            <circle cx="12" cy="12" r="10"/>
+                        </svg>
+                    </div>
+                    <input type="text" id="toInput" placeholder="Enter destination..." class="location-input">
+                </div>
+                <button class="go-btn" id="goBtn" disabled>GO</button>
+            </div>
+
+            <h2 class="section-title">Suggested Routes</h2>
+
+            <div class="routes-list" id="routesList">
+                <div class="route-card" data-route-id="jeepney-route-1">
+                    <div class="route-header">
+                        <div class="route-icon">
+                            <svg width="30" height="30" viewBox="0 0 64 64">
+                                <rect x="12" y="20" width="40" height="28" rx="4" fill="#FF6B6B"/>
+                                <rect x="16" y="24" width="32" height="16" fill="#FFE66D"/>
+                            </svg>
+                        </div>
+                        <h3 class="route-title">Jeepney Route</h3>
+                        <div class="route-time">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                            <span>28 mins</span>
+                        </div>
+                    </div>
+                    <div class="route-path">
+                        <div class="stop"></div>
+                        <div class="path-line"></div>
+                        <div class="stop"></div>
+                        <div class="path-line"></div>
+                        <div class="stop"></div>
+                        <div class="path-line"></div>
+                        <div class="stop"></div>
+                    </div>
+                    <p class="route-stops">Ayala Ave • Guadalupe • Boni • Mandaluyong</p>
+                    <div class="route-footer">
+                        <p class="route-price">₱32.00</p>
+                        <button class="view-details-btn">View Details →</button>
+                    </div>
+                </div>
+
+                <div class="route-card" data-route-id="bus-route-1">
+                    <div class="route-header">
+                        <div class="route-icon">
+                            <svg width="30" height="30" viewBox="0 0 64 64">
+                                <rect x="10" y="18" width="44" height="30" rx="4" fill="#4ECDC4"/>
+                                <rect x="14" y="22" width="36" height="18" fill="#95E1D3"/>
+                            </svg>
+                        </div>
+                        <h3 class="route-title">Bus Route</h3>
+                        <div class="route-time">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                            <span>22 mins</span>
+                        </div>
+                    </div>
+                    <div class="route-path">
+                        <div class="stop"></div>
+                        <div class="path-line"></div>
+                        <div class="stop"></div>
+                        <div class="path-line"></div>
+                        <div class="stop"></div>
+                    </div>
+                    <p class="route-stops">EDSA Carousel: Ayala • Ortigas • Cubao</p>
+                    <div class="route-footer">
+                        <p class="route-price">₱25.00</p>
+                        <button class="view-details-btn">View Details →</button>
+                    </div>
+                </div>
+
+                <div class="route-card" data-route-id="taxi-route-1">
+                    <div class="route-header">
+                        <div class="route-icon">
+                            <svg width="30" height="30" viewBox="0 0 64 64">
+                                <rect x="16" y="24" width="32" height="20" rx="4" fill="#FFD93D"/>
+                                <path d="M20 18 L32 12 L44 18" stroke="#333" stroke-width="2" fill="none"/>
+                            </svg>
+                        </div>
+                        <h3 class="route-title">Taxi Route</h3>
+                        <div class="route-time">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                            <span>18 mins</span>
+                        </div>
+                    </div>
+                    <div class="route-path">
+                        <div class="stop"></div>
+                        <div class="path-line"></div>
+                        <div class="stop"></div>
+                    </div>
+                    <p class="route-stops">Direct route via EDSA</p>
+                    <div class="route-footer">
+                        <p class="route-price">₱180.00 - ₱220.00</p>
+                        <button class="view-details-btn">View Details →</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ==================== ROUTES DATA ====================
+        const routesData = [
+            {
+                id: 'jeepney-route-1',
+                type: 'Jeepney Route',
+                vehicleType: 'jeepney',
+                routeNumber: 'J-01',
+                time: 28,
+                distance: 8.5,
+                stops: [
+                    { name: 'Ayala Ave', order: 1, waitTime: 2 },
+                    { name: 'Guadalupe', order: 2, waitTime: 3 },
+                    { name: 'Boni', order: 3, waitTime: 2 },
+                    { name: 'Mandaluyong', order: 4, waitTime: 0 }
+                ],
+                price: {
+                    base: 15,
+                    total: 32,
+                    discounted: { student: 25, senior: 25, pwd: 25 }
+                },
+                schedule: {
+                    firstTrip: '05:00',
+                    lastTrip: '22:00',
+                    frequency: '5-10 mins'
+                },
+                features: ['Traditional jeepney', 'Multiple stops', 'Cash payment only', 'Standing allowed'],
+                color: '#FF6B6B',
+                description: 'Traditional jeepney route with multiple stops',
+                capacity: 16,
+                accessibility: 'limited'
+            },
+            {
+                id: 'bus-route-1',
+                type: 'Bus Route',
+                vehicleType: 'bus',
+                routeNumber: 'EDSA-C',
+                time: 22,
+                distance: 12.3,
+                stops: [
+                    { name: 'EDSA Carousel: Ayala', order: 1, waitTime: 3 },
+                    { name: 'Ortigas', order: 2, waitTime: 4 },
+                    { name: 'Cubao', order: 3, waitTime: 0 }
+                ],
+                price: {
+                    base: 15,
+                    total: 25,
+                    discounted: { student: 20, senior: 20, pwd: 20 }
+                },
+                schedule: {
+                    firstTrip: '04:30',
+                    lastTrip: '23:00',
+                    frequency: '3-5 mins'
+                },
+                features: ['Air-conditioned', 'EDSA Carousel', 'Beep card accepted', 'CCTV installed', 'WiFi available'],
+                color: '#4ECDC4',
+                description: 'EDSA Carousel bus with air conditioning',
+                capacity: 40,
+                accessibility: 'wheelchair accessible'
+            },
+            {
+                id: 'taxi-route-1',
+                type: 'Taxi Route',
+                vehicleType: 'taxi',
+                routeNumber: 'TAXI-DIRECT',
+                time: 18,
+                distance: 10.5,
+                stops: [{ name: 'Direct route via EDSA', order: 1, waitTime: 0 }],
+                price: {
+                    base: 50,
+                    total: 200,
+                    range: { min: 180, max: 220 },
+                    perKm: 13.50,
+                    discounted: { senior: 180, pwd: 180 }
+                },
+                schedule: {
+                    firstTrip: '00:00',
+                    lastTrip: '23:59',
+                    frequency: 'on-demand'
+                },
+                features: ['Air-conditioned', 'Direct route', 'Door-to-door service', 'Cash/GCash accepted', 'Metered fare'],
+                color: '#FFD93D',
+                description: 'Direct taxi route, fastest option',
+                capacity: 4,
+                accessibility: 'varies by vehicle'
+            }
+        ];
+
+        // Data functions
+        function getRouteById(id) {
+            return routesData.find(route => route.id === id);
+        }
+
+        function isRouteOperating(routeId) {
+            const route = getRouteById(routeId);
+            if (!route) return false;
+
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            
+            const [startHour, startMin] = route.schedule.firstTrip.split(':').map(Number);
+            const [endHour, endMin] = route.schedule.lastTrip.split(':').map(Number);
+            
+            const startTime = startHour * 60 + startMin;
+            const endTime = endHour * 60 + endMin;
+            
+            return currentTime >= startTime && currentTime <= endTime;
+        }
+
+        function calculateRouteETA(routeId) {
+            const route = getRouteById(routeId);
+            if (!route) return null;
+
+            const now = new Date();
+            const eta = new Date(now.getTime() + route.time * 60000);
+            
+            return {
+                minutes: route.time,
+                arrivalTime: eta.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                distance: route.distance
+            };
+        }
+
+        function calculateTripCost(routeId, passengerType = 'regular', numPassengers = 1) {
+            const route = getRouteById(routeId);
+            if (!route) return null;
+
+            let farePerPerson;
+            
+            if (passengerType !== 'regular' && route.price.discounted) {
+                farePerPerson = route.price.discounted[passengerType] || route.price.total;
+            } else {
+                farePerPerson = route.price.range ? 
+                    (route.price.range.min + route.price.range.max) / 2 : 
+                    route.price.total;
+            }
+
+            return {
+                farePerPerson,
+                totalFare: farePerPerson * numPassengers,
+                passengerType,
+                numPassengers,
+                savings: passengerType !== 'regular' ? (route.price.total - farePerPerson) * numPassengers : 0
+            };
+        }
+
+        // ==================== ROUTES UI ====================
+        const fromInput = document.getElementById('fromInput');
+        const toInput = document.getElementById('toInput');
+        const goBtn = document.getElementById('goBtn');
+        const routeCards = document.querySelectorAll('.route-card');
+        const viewDetailsButtons = document.querySelectorAll('.view-details-btn');
+
+        let selectedRoute = null;
+
+        // Notification function
+        function showNotification(message, duration = 3000) {
+            const existingNotif = document.querySelector('.notification');
+            if (existingNotif) existingNotif.remove();
+            
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(45, 80, 22, 0.95);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 500;
+                z-index: 1000;
+                animation: slideDown 0.3s ease-out;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                max-width: 320px;
+                text-align: center;
+                white-space: pre-line;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideUp 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, duration);
+        }
+
+        // Validate inputs
+        function validateInputs() {
+            const fromValue = fromInput.value.trim();
+            const toValue = toInput.value.trim();
+            
+            goBtn.disabled = !(fromValue && toValue);
+        }
+
+        // Input listeners
+        fromInput.addEventListener('input', validateInputs);
+        toInput.addEventListener('input', validateInputs);
+
+        fromInput.addEventListener('focus', (e) => {
+            e.target.parentElement.style.transform = 'scale(1.02)';
+        });
+        fromInput.addEventListener('blur', (e) => {
+            e.target.parentElement.style.transform = 'scale(1)';
+        });
+
+        toInput.addEventListener('focus', (e) => {
+            e.target.parentElement.style.transform = 'scale(1.02)';
+        });
+        toInput.addEventListener('blur', (e) => {
+            e.target.parentElement.style.transform = 'scale(1)';
+        });
+
+        // Route card clicks
+        routeCards.forEach((card, index) => {
+            const routeData = routesData[index];
+            
+            card.addEventListener('click', (e) => {
+                if (e.target.classList.contains('view-details-btn')) return;
+                
+                card.style.transform = 'scale(0.98)';
+                setTimeout(() => { card.style.transform = ''; }, 200);
+
+                // Update selection
+                if (selectedRoute !== null) {
+                    routeCards[selectedRoute].style.borderLeft = 'none';
+                    routeCards[selectedRoute].style.background = 'white';
+                }
+
+                selectedRoute = index;
+                card.style.borderLeft = `4px solid ${routeData.color}`;
+                card.style.background = '#f9f9f9';
+
+                const priceDisplay = routeData.price.range ? 
+                    `₱${routeData.price.range.min}-₱${routeData.price.range.max}` : 
+                    `₱${routeData.price.total}`;
+                
+                showNotification(`${routeData.type}\n${routeData.time} mins • ${priceDisplay}`);
+
+                const eta = calculateRouteETA(routeData.id);
+                const isOperating = isRouteOperating(routeData.id);
+                
+                console.log('Selected route:', {
+                    type: routeData.type,
+                    eta: eta.arrivalTime,
+                    operating: isOperating,
+                    distance: routeData.distance + 'km'
+                });
+            });
+
+            card.addEventListener('mouseenter', () => {
+                card.style.borderLeft = `4px solid ${routeData.color}`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                if (selectedRoute !== index) {
+                    card.style.borderLeft = 'none';
+                }
+            });
+        });
+
+        // View details button clicks
+        viewDetailsButtons.forEach((btn, index) => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const routeData = routesData[index];
+                
+                showNotification(`📋 Loading ${routeData.type} details...`);
+
+                setTimeout(() => {
+                    const eta = calculateRouteETA(routeData.id);
+                    const isOperating = isRouteOperating(routeData.id);
+                    const priceDisplay = routeData.price.range ? 
+                        `₱${routeData.price.range.min} - ₱${routeData.price.range.max}` : 
+                        `₱${routeData.price.total}`;
+
+                    console.log('Route Details:', {
+                        route: routeData.type,
+                        routeNumber: routeData.routeNumber,
+                        status: isOperating ? 'Operating' : 'Not Operating',
+                        time: `${routeData.time} minutes`,
+                        distance: `${routeData.distance} km`,
+                        price: priceDisplay,
+                        eta: eta.arrivalTime,
+                        stops: routeData.stops.map(s => s.name).join(' → '),
+                        features: routeData.features.join(', ')
+                    });
+
+                    showNotification(`${routeData.type}\n⏱️ ${routeData.time} min • 💰 ${priceDisplay}\n🚏 ${routeData.stops.length} stops`);
+                }, 800);
+            });
+        });
+
+        // GO button click
+        goBtn.addEventListener('click', () => {
+            const from = fromInput.value.trim();
+            const to = toInput.value.trim();
+            
+            if (from && to) {
+                showNotification('🔄 Updating routes...');
+                console.log('Recalculating routes:', { from, to });
+                
+                setTimeout(() => {
+                    showNotification('✅ Routes updated successfully!');
+                }, 1000);
+            }
+        });
+
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', () => {
+            showNotification('← Going back to stops');
+            console.log('Navigate back to stops page');
+        });
+
+        console.log('Lakbai Routes Page - Ready!');
+    </script>
+</body>
+</html>
